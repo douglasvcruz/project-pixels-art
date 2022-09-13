@@ -11,14 +11,24 @@ function rgb() {
 }
 
 function corAleatoria() {
+  const colors = [];
   bottom.addEventListener('click', () => {
     for (let i = 1; i < color.length; i += 1) {
       color[i].style.backgroundColor = rgb();
+      colors[i] = color[i].style.backgroundColor;
     }
+    localStorage.setItem('colorPalette', JSON.stringify(colors));
   });
 }
 
 corAleatoria();
+
+const paleta = JSON.parse(localStorage.getItem('colorPalette'));
+if (localStorage.getItem('colorPalette')) {
+  for (let i = 1; i < color.length; i += 1) {
+    color[i].style.backgroundColor = paleta[i];
+  }
+}
 
 function pixeis() {
   for (let i = 0; i < 25; i += 1) {
@@ -61,7 +71,29 @@ function colorir() {
     });
   }
 }
+
 colorir();
+
+function salvarPixels() {
+  const saved = [];
+  for (let i = 0; i < pixels.length; i += 1) {
+    saved[i] = pixels[i].style.backgroundColor;
+  }
+  localStorage.setItem('pixelBoard', JSON.stringify(saved));
+}
+
+for (let i = 0; i < pixels.length; i += 1) {
+  pixels[i].addEventListener('click', salvarPixels);
+}
+
+if (localStorage.getItem('pixelBoard')) {
+  const pixelBoard = JSON.parse(localStorage.getItem('pixelBoard'));
+  for (let i = 0; i < pixels.length; i += 1) {
+    pixels[i].style.backgroundColor = pixelBoard[i];
+  }
+}
+
+salvarPixels();
 
 function reset() {
   reseta.addEventListener('click', () => {

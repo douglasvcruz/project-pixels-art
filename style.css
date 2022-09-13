@@ -69,6 +69,8 @@ body {
   padding: auto;
   width: 210px;
   height: 210px;
+  min-width: 210px;
+  max-width: 210px;
   text-align: center;
 }
 
