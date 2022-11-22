@@ -22,6 +22,10 @@
         <div id="button-random-color">Cores aleatórias</div>
         <div id="clear-board">Limpar</div>
     </section>
+    <section>
+        <input type="number" id="board-size" min="1" max="50" oninput="this.value < 1 ? this.value = '' : false">
+        <button type="button" id="generate-board">VQV</button>
+    </section>
     <section id="pixel-board"></section>
     <script src="script.js"></script>
 </body>
