@@ -1,66 +1,73 @@
 const color = document.querySelectorAll('.color');
-const bottom = document.querySelector('#button-random-color');
+const buttonRandomColor = document.querySelector('#button-random-color');
 const board = document.querySelector('#pixel-board');
-const reseta = document.querySelector('#clear-board');
+const clearBoard = document.querySelector('#clear-board');
 
-function rgb() {
+const localStorageBoard = () => {
+  if (!localStorage.getItem('boardSize')) localStorage.setItem('boardSize', 5);
+  const palette = JSON.parse(localStorage.getItem('colorPalette'));
+  if (localStorage.getItem('colorPalette')) {
+    for (let i = 1; i < color.length; i += 1) {
+      color[i].style.backgroundColor = palette[i];
+    }
+  }
+};
+
+const localStoragePixelBoard = () => {
+  if (localStorage.getItem('pixelBoard')) {
+    const pixels = document.querySelectorAll('.pixel');
+    const pixelBoard = JSON.parse(localStorage.getItem('pixelBoard'));
+    for (let i = 0; i < pixels.length; i += 1) {
+      pixels[i].style.backgroundColor = pixelBoard[i];
+    }
+  }
+};
+
+function generateRgb() {
   const r = Math.floor(Math.random() * 255);
   const g = Math.floor(Math.random() * 255);
   const b = Math.floor(Math.random() * 255);
   return `rgb(${r},${g},${b})`;
 }
 
-function corAleatoria() {
+function randomColor() {
   const colors = [];
-  bottom.addEventListener('click', () => {
+  buttonRandomColor.addEventListener('click', () => {
     for (let i = 1; i < color.length; i += 1) {
-      color[i].style.backgroundColor = rgb();
+      color[i].style.backgroundColor = generateRgb();
       colors[i] = color[i].style.backgroundColor;
     }
     localStorage.setItem('colorPalette', JSON.stringify(colors));
   });
 }
 
-corAleatoria();
-
-const paleta = JSON.parse(localStorage.getItem('colorPalette'));
-if (localStorage.getItem('colorPalette')) {
-  for (let i = 1; i < color.length; i += 1) {
-    color[i].style.backgroundColor = paleta[i];
-  }
-}
-
-function pixeis() {
-  for (let i = 0; i < 25; i += 1) {
+function createPixels() {
+  const local = localStorage.getItem('boardSize');
+  for (let i = 0; i < Number(local) * Number(local); i += 1) {
     const pixel = document.createElement('div');
     pixel.className = 'pixel';
     board.appendChild(pixel);
   }
-  board.style.width = 5 * 40 + 5 * 2 + 2;
+  board.style.width = Number(local) * 40 + Number(local) * 2 + 2;
 }
 
-pixeis();
-
-const pixels = document.querySelectorAll('.pixel');
-
-function remover() {
+function clearPixels() {
   for (let i = 0; i < color.length; i += 1) {
     color[i].className = 'color';
   }
 }
 
-function selecionar() {
+function selectColor() {
   for (let i = 0; i < color.length; i += 1) {
     color[i].addEventListener('click', () => {
-      remover();
+      clearPixels();
       color[i].className = 'color selected';
     });
   }
 }
 
-selecionar();
-
-function colorir() {
+function coloringPixels() {
+  const pixels = document.querySelectorAll('.pixel');
   for (let i = 0; i < pixels.length; i += 1) {
     pixels[i].addEventListener('click', () => {
       const selected = document.querySelector('.selected');
@@ -71,45 +78,34 @@ function colorir() {
       }
     });
   }
+  localStoragePixelBoard();
 }
 
-colorir();
-
-function salvarPixels() {
+function savePixels() {
+  const pixels = document.querySelectorAll('.pixel');
   const saved = [];
   for (let i = 0; i < pixels.length; i += 1) {
     saved[i] = pixels[i].style.backgroundColor;
   }
   localStorage.setItem('pixelBoard', JSON.stringify(saved));
-}
-
-for (let i = 0; i < pixels.length; i += 1) {
-  pixels[i].addEventListener('click', salvarPixels);
-}
-
-if (localStorage.getItem('pixelBoard')) {
-  const pixelBoard = JSON.parse(localStorage.getItem('pixelBoard'));
   for (let i = 0; i < pixels.length; i += 1) {
-    pixels[i].style.backgroundColor = pixelBoard[i];
+    pixels[i].addEventListener('click', savePixels);
   }
 }
 
-salvarPixels();
-
-function reset() {
-  reseta.addEventListener('click', () => {
+function resetPixels() {
+  const pixels = document.querySelectorAll('.pixel');
+  clearBoard.addEventListener('click', () => {
     for (let i = 0; i < pixels.length; i += 1) {
       pixels[i].style.backgroundColor = 'white';
     }
   });
 }
 
-reset();
-
-const boardSize = document.getElementById('board-size');
 const generateBoard = document.getElementById('generate-board');
+const boardSize = document.getElementById('board-size');
 
-function criar() {
+function createNewPixels() {
   for (let i = 0; i < boardSize.value * boardSize.value; i += 1) {
     const pixel = document.createElement('div');
     pixel.className = 'pixel';
@@ -117,33 +113,34 @@ function criar() {
   }
   board.style.width = 40 * boardSize.value + 2 + boardSize.value * 2;
   localStorage.setItem('boardSize', boardSize.value);
+  coloringPixels();
+  savePixels();
 }
 
-function testando() {
+function generaNewBoardSize() {
   generateBoard.addEventListener('click', () => {
     if (boardSize.value === '') return alert('Board inválido!');
 
     if (boardSize.value < 5) {
       board.innerHTML = '';
       boardSize.value = 5;
-      criar();
+      createNewPixels();
     } else if (boardSize.value > 50) {
       board.innerHTML = '';
       boardSize.value = 50;
-      criar();
+      createNewPixels();
     } else {
       board.innerHTML = '';
-      criar();
+      createNewPixels();
     }
   });
 }
 
-const local = localStorage.getItem('boardSize');
-
-if (local) {
-  board.innerHTML = '';
-  boardSize.value = local;
-  criar();
-}
-
-testando();
+localStorageBoard();
+randomColor();
+selectColor();
+createPixels();
+coloringPixels();
+savePixels();
+resetPixels();
+generaNewBoardSize();
